@@ -6,63 +6,88 @@
   <title>Tic Tac Toe</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      background: linear-gradient(45deg, #141E30, #243B55);
       margin: 0;
-      background-color: #f0f0f0;
+      color: #fff;
     }
-    .board-row {
-      display: flex;
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #00FFD1;
+      text-shadow: 2px 2px 5px #00FFD1;
+    }
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
     }
     .square {
-      width: 100px;
-      height: 100px;
-      background: #fff;
-      border: 1px solid #999;
-      font-size: 24px;
-      font-weight: bold;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #00FFD1;
+      font-size: 36px;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
-    .game-info {
-      margin-top: 20px;
-      font-size: 18px;
+    .square:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
     }
-    .status {
-      margin-bottom: 10px;
+    .square.x {
+      color: #00FFD1;
+      text-shadow: 1px 1px 10px #00FFD1;
+    }
+    .square.o {
+      color: #FF007F;
+      text-shadow: 1px 1px 10px #FF007F;
+    }
+    .status-box {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid #00FFD1;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 255, 209, 0.7);
+    }
+    .status-box span {
+      color: #00FFD1;
+      font-weight: bold;
     }
     .winner {
-      color: green;
-      font-weight: bold;
-      font-size: 24px;
-      padding: 10px;
-      border: 2px solid green;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      color: #00FF00;
+    }
+    .tie-message {
+      color: #FFFF00;
     }
     .restart-btn {
-      margin-top: 20px;
       padding: 10px 20px;
       font-size: 18px;
-      background-color: #007bff;
-      color: white;
+      background-color: #00FFD1;
+      color: #141E30;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      transition: background-color 0.3s;
     }
     .restart-btn:hover {
-      background-color: #0056b3;
+      background-color: #FF007F;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h1 align="center">Tic Tac Toe😋</h1>
   <div id="root"></div>
   
   <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
@@ -72,7 +97,7 @@
   <script type="text/babel">
     function Square(props) {
       return (
-        <button className="square" onClick={props.onClick}>
+        <button className={`square ${props.value}`} onClick={props.onClick}>
           {props.value}
         </button>
       );
@@ -90,22 +115,16 @@
 
       render() {
         return (
-          <div>
-            <div className="board-row">
-              {this.renderSquare(0)}
-              {this.renderSquare(1)}
-              {this.renderSquare(2)}
-            </div>
-            <div className="board-row">
-              {this.renderSquare(3)}
-              {this.renderSquare(4)}
-              {this.renderSquare(5)}
-            </div>
-            <div className="board-row">
-              {this.renderSquare(6)}
-              {this.renderSquare(7)}
-              {this.renderSquare(8)}
-            </div>
+          <div className="game-board">
+            {this.renderSquare(0)}
+            {this.renderSquare(1)}
+            {this.renderSquare(2)}
+            {this.renderSquare(3)}
+            {this.renderSquare(4)}
+            {this.renderSquare(5)}
+            {this.renderSquare(6)}
+            {this.renderSquare(7)}
+            {this.renderSquare(8)}
           </div>
         );
       }
@@ -115,11 +134,7 @@
       constructor(props) {
         super(props);
         this.state = {
-          history: [
-            {
-              squares: Array(9).fill(null)
-            }
-          ],
+          history: [{ squares: Array(9).fill(null) }],
           stepNumber: 0,
           xIsNext: true
         };
@@ -129,16 +144,10 @@
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
-          return;
-        }
-        squares[i] = this.state.xIsNext ? "X" : "O";
+        if (calculateWinner(squares) || squares[i]) return;
+        squares[i] = this.state.xIsNext ? "x" : "o";
         this.setState({
-          history: history.concat([
-            {
-              squares: squares
-            }
-          ]),
+          history: history.concat([{ squares }]),
           stepNumber: history.length,
           xIsNext: !this.state.xIsNext
         });
@@ -146,11 +155,7 @@
 
       restartGame() {
         this.setState({
-          history: [
-            {
-              squares: Array(9).fill(null)
-            }
-          ],
+          history: [{ squares: Array(9).fill(null) }],
           stepNumber: 0,
           xIsNext: true
         });
@@ -160,32 +165,29 @@
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
+        const isTie = !winner && current.squares.every(Boolean);
 
         let status;
         if (winner) {
           status = <div className="winner">Winner: {winner} 🎉</div>;
+        } else if (isTie) {
+          status = <div className="tie-message">It's a Tie! 🤝</div>;
         } else {
-          status = "Next player: " + (this.state.xIsNext ? "X" : "O");
+          status = (
+            <div className="status-box">
+              Next player: <span>{this.state.xIsNext ? "X" : "O"}</span>
+            </div>
+          );
         }
 
         return (
           <div className="game">
-            <div className="game-board">
-              <Board
-                squares={current.squares}
-                onClick={i => this.handleClick(i)}
-              />
-            </div>
-            <div className="game-info">
-              <div className="status">{status}</div>
-              {winner && (
-                <div>
-                  <button className="restart-btn" onClick={() => this.restartGame()}>
-                    Restart Game
-                  </button>
-                </div>
-              )}
-            </div>
+            <h1>三目並べ🌸/Tic Tac Toe </h1>
+            {status}
+            <Board squares={current.squares} onClick={(i) => this.handleClick(i)} />
+            <button className="restart-btn" onClick={() => this.restartGame()}>
+              Restart Game
+            </button>
           </div>
         );
       }
